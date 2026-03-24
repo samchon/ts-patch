@@ -32,6 +32,9 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Clean yarn cache
+        run: yarn cache clean
+
       - name: Test
         run: yarn run test && yarn run perf
         env:
