@@ -2,7 +2,7 @@ import { LogLevel, PatchError } from '../system';
 import chalk from 'chalk';
 import { getTsPackage } from '../ts-package';
 import { PatchDetail } from "../patch/patch-detail";
-import { getTsModule } from "../module";
+import { getTsModule, TsModule } from "../module";
 import { getInstallerOptions, InstallerOptions } from "../options";
 
 
@@ -46,6 +46,15 @@ export function check(moduleNameOrNames?: string | string[], opts?: Partial<Inst
     /* Validate */
     if (!tsPackage.moduleNames.includes(moduleName))
       throw new PatchError(`${moduleName} is not a valid TypeScript module in ${packageDir}`);
+
+    /* Report non-patchable modules (thin wrappers in TS 6+) */
+    if (!TsModule.isPatchable(moduleName, tsPackage.majorVer)) {
+      log([ '~',
+        `${chalk.blueBright(moduleName)} delegates to ${chalk.blueBright('typescript.js')} (no independent patch needed)`
+      ]);
+      res[moduleName] = undefined;
+      continue;
+    }
 
     /* Report */
     const tsModule = getTsModule(tsPackage, moduleName, { skipCache: options.skipCache });

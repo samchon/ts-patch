@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir" : "dist",
     "moduleResolution" : "node",
+    "ignoreDeprecations": "6.0",
     "module": "commonjs",
     "target": "ES2020",
     "noEmit": false,

@@ -1,7 +1,7 @@
 import { LogLevel, PatchError, TspError, } from '../system';
 import { getTsPackage } from '../ts-package';
 import chalk from 'chalk';
-import { getModuleFile, getTsModule, ModuleFile } from '../module';
+import { getModuleFile, getTsModule, TsModule, ModuleFile } from '../module';
 import path from 'path';
 import { getInstallerOptions, InstallerOptions } from '../options';
 import { writeFileWithLock } from '../utils';
@@ -27,9 +27,21 @@ export function patch(moduleNameOrNames: string | string[], opts?: Partial<Insta
   /* Load Package */
   const tsPackage = getTsPackage(dir);
 
+  /* Skip non-patchable modules (e.g. thin wrappers in TS 6+) */
+  const patchableModuleNames = targetModuleNames.filter(m => {
+    if (!TsModule.isPatchable(m, tsPackage.majorVer)) {
+      log([ '~',
+        `${chalk.blueBright(m)} is not independently patchable in TS ${tsPackage.majorVer}+ ` +
+        `(delegates to ${chalk.blueBright('typescript.js')})`
+      ]);
+      return false;
+    }
+    return true;
+  });
+
   /* Get modules to patch and patch info */
   const moduleFiles: [ string, ModuleFile ][] =
-    targetModuleNames.map(m => [ m, getModuleFile(tsPackage.getModulePath(m)) ]);
+    patchableModuleNames.map(m => [ m, getModuleFile(tsPackage.getModulePath(m)) ]);
 
   /* Determine files not already patched or outdated  */
   const patchableFiles = moduleFiles.filter(entry => {

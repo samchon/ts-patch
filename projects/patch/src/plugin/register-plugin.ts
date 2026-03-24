@@ -108,6 +108,7 @@ namespace tsp {
         tsNodeInstance = registerConfig.tsNodeInstance;
         tsNode.register(tsNodeInstance);
       } else {
+        const tsMajor = parseInt(tsShim.versionMajorMinor);
         tsNodeInstance = tsNode.register({
           transpileOnly: true,
           ...(tsConfig ? { project: tsConfig } : { skipProject: true }),
@@ -116,6 +117,7 @@ namespace tsp {
             jsx: 'react',
             esModuleInterop: true,
             module: isEsm ? 'ESNext' : 'commonjs',
+            ...(tsMajor >= 6 ? { ignoreDeprecations: '6.0' } : {}),
           }
         });
       }

@@ -19,6 +19,24 @@ export namespace TsModule {
     'tsserver.js': '_tsserver.js'
   } satisfies Partial<Record<typeof names[number], string>>;
 
+  /**
+   * Modules that are thin wrappers (re-export or import-only) in certain TS major versions.
+   * These delegate to typescript.js and don't need independent patching.
+   *
+   * - TS 6+: tsserverlibrary.js re-exports typescript.js; _tsserver.js is ESM-style (not IIFE)
+   */
+  const nonPatchableModulesByMajorVer: Record<number, string[]> = {
+    6: [ 'tsserverlibrary.js', 'tsserver.js' ]
+  };
+
+  export function isPatchable(moduleName: string, majorVer: number): boolean {
+    for (let ver = majorVer; ver >= 6; ver--) {
+      const nonPatchable = nonPatchableModulesByMajorVer[ver];
+      if (nonPatchable?.includes(moduleName)) return false;
+    }
+    return true;
+  }
+
   export function getContentFileName(moduleName: typeof names[number]): string {
     return contentFileMap[moduleName] || moduleName;
   }

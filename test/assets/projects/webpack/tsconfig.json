@@ -6,6 +6,7 @@
     "target": "ESNext",
     "declaration": false,
     "moduleResolution" : "Node",
+    "ignoreDeprecations": "6.0",
     "plugins": [
       { "transform": "./plugin.ts" }
     ]
