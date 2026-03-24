@@ -13,7 +13,8 @@
     "plugins" : [
       {
         "transform" : "./plugin.ts",
-        "transformProgram" : true
+        "transformProgram" : true,
+        "tsConfig" : "../../tsconfig.plugin.json"
       }
     ]
   }

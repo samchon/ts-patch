@@ -27,7 +27,8 @@
       {
         "transform": "./plugin.ts",
         "transformProgram": true,
-        "import": "transformProgram"
+        "import": "transformProgram",
+        "tsConfig": "../../tsconfig.plugin.json"
       }
     ]
   }
