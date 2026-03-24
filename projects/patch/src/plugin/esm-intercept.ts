@@ -113,9 +113,19 @@ namespace tsp {
           /* Add to cache */
           Module._cache[resolvedPath] = newModule;
 
-          /* Load with ESM library */
-          const res = getEsmLibrary()(newModule)(targetFilePath);
-          newModule.filename = resolvedPath;
+          /* Load ESM module — try native require first (Node.js 22.12.0+), fall back to esm library */
+          let res;
+          try {
+            res = originalRequire.call(this, targetFilePath);
+            newModule.exports = res;
+          } catch (loadErr: any) {
+            if (loadErr?.code === 'ERR_REQUIRE_ESM') {
+              res = getEsmLibrary()(newModule)(targetFilePath);
+              newModule.filename = resolvedPath;
+            } else {
+              throw loadErr;
+            }
+          }
 
           return res;
         }

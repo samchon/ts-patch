@@ -56,8 +56,16 @@ describe('Webpack', () => {
     expect(err).toContain('Error: ts-patch worked (esm)');
   });
 
-  test(`Compiler with ESM transformer throws if no ESM package`, () => {
+  test(`Compiler with ESM transformer works without esm package on Node 22.12+ or throws if unavailable`, () => {
+    const [major, minor] = process.versions.node.split('.').map(Number);
+    const nativeEsmRequire = major > 22 || (major === 22 && minor >= 12);
+
     const err = execAndGetErr(projectPath, './tsconfig.esm.json', 'esm');
-    expect(err).toContain('To enable experimental ESM support, install the \'esm\' package');
+    if (nativeEsmRequire) {
+      // Node.js 22.12.0+ can require ESM modules natively — esm package not needed
+      expect(err).toContain('Error: ts-patch worked (esm)');
+    } else {
+      expect(err).toContain('To enable experimental ESM support, install the \'esm\' package');
+    }
   });
 });
